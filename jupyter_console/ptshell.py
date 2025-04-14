@@ -123,12 +123,12 @@ async def async_input(prompt, loop=None):
 
 def get_pygments_lexer(name):
     name = name.lower()
-    if name == 'ipython2':
-        from IPython.lib.lexers import IPythonLexer
+    if name == 'ipython3':
+        from ipython_pygments_lexers import IPythonLexer
         return IPythonLexer
-    elif name == 'ipython3':
-        from IPython.lib.lexers import IPython3Lexer
-        return IPython3Lexer
+    elif name == 'ipython3console':
+        from ipython_pygments_lexers import IPythonConsoleLexer
+        return IPythonConsoleLexer
     else:
         try:
             return get_lexer_by_name(name).__class__
@@ -963,8 +963,10 @@ class ZMQTerminalInteractiveShell(SingletonConfigurable):
                         print("\r", end="")
 
                 elif msg_type == 'error':
-                    for frame in sub_msg["content"]["traceback"]:
-                        print(frame, file=sys.stderr)
+                    traceback = "\n".join(sub_msg["content"]["traceback"])
+                    lexer = get_pygments_lexer("ipython3console")()
+                    tokens = lexer.get_tokens(traceback)
+                    print_formatted_text(PygmentsTokens(tokens), style=self.pt_cli.app.style)
                     # Trigger prompt redraw
                     print_formatted_text("", end="")
 
