@@ -118,9 +118,6 @@ def get_pygments_lexer(name):
     if name == 'ipython3':
         from ipython_pygments_lexers import IPythonLexer
         return IPythonLexer
-    elif name == 'ipython3console':
-        from ipython_pygments_lexers import IPythonConsoleLexer
-        return IPythonConsoleLexer
     else:
         try:
             return get_lexer_by_name(name).__class__
@@ -948,10 +945,9 @@ class ZMQTerminalInteractiveShell(SingletonConfigurable):
 
                 elif msg_type == 'error':
                     traceback = "\n".join(sub_msg["content"]["traceback"])
-                    lexer = get_pygments_lexer("ipython3console")()
-                    tokens = lexer.get_tokens(traceback)
+                    lexer = self.lexer()
+                    tokens = list(lexer.get_tokens(traceback))
                     print_formatted_text(PygmentsTokens(tokens), style=self.pt_cli.app.style)
-                    # Trigger prompt redraw
                     print_formatted_text("", end="")
 
     _imagemime = {
