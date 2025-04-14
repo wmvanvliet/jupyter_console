@@ -36,14 +36,6 @@ from .completer import ZMQCompleter
 from .zmqhistory import ZMQHistoryManager
 from . import __version__
 
-# Discriminate version3 for asyncio
-from prompt_toolkit import __version__ as ptk_version
-PTK3 = ptk_version.startswith('3.')
-
-if not PTK3:
-    # use_ayncio_event_loop obsolete in PKT3
-    from prompt_toolkit.eventloop.defaults import use_asyncio_event_loop
-
 from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.document import Document
 from prompt_toolkit.enums import DEFAULT_BUFFER, EditingMode
@@ -549,11 +541,6 @@ class ZMQTerminalInteractiveShell(SingletonConfigurable):
             Condition(lambda: self.highlight_matching_brackets))
         ]
 
-        # Tell prompt_toolkit to use the asyncio event loop.
-        # Obsolete in prompt_toolkit.v3
-        if not PTK3:
-            use_asyncio_event_loop()
-
         self.lexer = get_pygments_lexer(lexer)
         self.pt_cli = PromptSession(
             message=(lambda: PygmentsTokens(self.get_prompt_tokens())),
@@ -582,10 +569,7 @@ class ZMQTerminalInteractiveShell(SingletonConfigurable):
         else:
             default = ''
 
-        if PTK3:
-            text = await self.pt_cli.prompt_async(default=default)
-        else:
-            text = await self.pt_cli.prompt(default=default, async_=True)
+        text = await self.pt_cli.prompt_async(default=default)
 
         return text
 
